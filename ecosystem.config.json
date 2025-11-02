@@ -1,0 +1,25 @@
+{
+  "apps": [
+    {
+      "name": "url-shortener-backend",
+      "script": "./server.js",
+      "exec_mode": "fork",
+      "instances": 1,
+      "watch": true,
+      "ignore_watch": ["node_modules", "logs", ".git"],
+      "autorestart": true,
+      "restart_delay": 5000,
+      "max_restarts": 10,
+      "kill_timeout": 3000,
+      "env": {
+        "NODE_ENV": "development",
+        "PORT": 3001
+      },
+      "env_production": {
+        "NODE_ENV": "production",
+        "PORT": 3001
+      },
+      "log_date_format": "YYYY-MM-DD HH:mm:ss"
+    }
+  ]
+}
