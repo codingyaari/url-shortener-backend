@@ -17,6 +17,7 @@ import clickRoutes from './routes/clickRoutes.js';
 // Load environment variables
 dotenv.config();
 
+
 // Connect to database (async)
 connectDB()
 
