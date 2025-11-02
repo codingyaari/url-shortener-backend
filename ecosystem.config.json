@@ -17,7 +17,7 @@
       },
       "env_production": {
         "NODE_ENV": "production",
-        "PORT": 3001
+        "PORT": 2121
       },
       "log_date_format": "YYYY-MM-DD HH:mm:ss"
     }
