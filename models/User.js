@@ -31,9 +31,30 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
+  username: {
+    type: String,
+    unique: true,
+    sparse: true,
+    lowercase: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 32,
+  },
+  bioHeadline: {
+    type: String,
+    trim: true,
+    maxlength: 160,
+    default: '',
+  },
+  bioEnabled: {
+    type: Boolean,
+    default: true,
+  },
 }, {
   timestamps: true,
 });
+
+userSchema.index({ username: 1 });
 
 // Hash password before saving (only if password exists and is modified)
 userSchema.pre('save', async function(next) {

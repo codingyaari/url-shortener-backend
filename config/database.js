@@ -8,7 +8,8 @@ const connectDB = async () => {
       process.exit(1);
     }
     const conn = await mongoose.connect(dbUrl);
-    console.log(`✅ MongoDB Connected: ${dbUrl}`);
+    const safeHost = conn.connection.host;
+    console.log(`✅ MongoDB Connected: ${safeHost}`);
   } catch (error) {
     console.error(`❌ MongoDB Connection Error: ${error.message}`, error);
     process.exit(1);

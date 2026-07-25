@@ -1,5 +1,6 @@
 import express from 'express';
 import { googleLogin, adminLogin, getMe } from '../controllers/authController.js';
+import { updateProfile } from '../controllers/bioController.js';
 import { protect } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 import { validate } from '../middleware/validate.js';
@@ -28,5 +29,8 @@ router.post('/admin', authLimiter, validateAdminLogin, adminLogin);
 
 // Get current authenticated user
 router.get('/me', protect, getMe);
+
+// Update bio / profile settings
+router.put('/profile', protect, updateProfile);
 
 export default router;

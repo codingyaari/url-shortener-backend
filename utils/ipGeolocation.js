@@ -19,9 +19,17 @@ export async function getLocationFromIP(ip) {
   };
 
   // Skip localhost/internal IPs (these can't be geolocated)
-  if (!ip || ip === 'Unknown' || ip === '::1' || ip.startsWith('127.') || ip.startsWith('192.168.') || ip.startsWith('10.')) {
-    console.log(`Skipping geolocation for local/internal IP: ${ip}`);
-    return defaultResponse;
+  if (!ip || ip === 'Unknown' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip.startsWith('127.') || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.16.') || ip.startsWith('172.17.') || ip.startsWith('172.18.') || ip.startsWith('172.19.') || ip.startsWith('172.2') || ip.startsWith('172.3')) {
+    return {
+      country: 'Local network',
+      city: 'Development',
+      region: null,
+      state: null,
+      postalCode: null,
+      lat: null,
+      lon: null,
+      isp: 'Localhost',
+    };
   }
 
   try {

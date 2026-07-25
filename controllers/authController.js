@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import { generateToken } from '../middleware/auth.js';
 import { verifyGoogleToken } from '../utils/verifyGoogleToken.js';
+import { ensureUsername } from './bioController.js';
 
 /**
  * @route   POST /api/auth/google
@@ -11,7 +12,6 @@ export const googleLogin = async (req, res, next) => {
   try {
     const { idToken } = req.body;
 
-    // Validate ID token is provided
     if (!idToken) {
       return res.status(400).json({
         success: false,
@@ -19,7 +19,6 @@ export const googleLogin = async (req, res, next) => {
       });
     }
 
-    // Verify the Google ID token
     let verifiedUser;
     try {
       verifiedUser = await verifyGoogleToken(idToken);
@@ -30,10 +29,8 @@ export const googleLogin = async (req, res, next) => {
       });
     }
 
-    // Extract verified user data (we trust this data as it comes from Google)
     const { email, name, picture, googleId } = verifiedUser;
 
-    // Find user by email or googleId
     let user = await User.findOne({
       $or: [
         { email: email.toLowerCase() },
@@ -42,23 +39,12 @@ export const googleLogin = async (req, res, next) => {
     });
 
     if (user) {
-      // User exists - update Google info if needed
-      if (!user.googleId) {
-        user.googleId = googleId;
-      }
-      if (user.provider !== 'google') {
-        user.provider = 'google';
-      }
-      if (picture && !user.avatar) {
-        user.avatar = picture;
-      }
-      // Update name if changed
-      if (name && user.name !== name) {
-        user.name = name;
-      }
+      if (!user.googleId) user.googleId = googleId;
+      if (user.provider !== 'google') user.provider = 'google';
+      if (picture && !user.avatar) user.avatar = picture;
+      if (name && user.name !== name) user.name = name;
       await user.save();
     } else {
-      // Create new user with verified Google data
       user = await User.create({
         name,
         email: email.toLowerCase(),
@@ -68,7 +54,7 @@ export const googleLogin = async (req, res, next) => {
       });
     }
 
-    // Generate token
+    const username = await ensureUsername(user);
     const token = generateToken(user._id);
 
     res.status(200).json({
@@ -80,10 +66,12 @@ export const googleLogin = async (req, res, next) => {
         email: user.email,
         avatar: user.avatar,
         provider: user.provider,
+        username,
+        bioHeadline: user.bioHeadline || '',
+        bioEnabled: user.bioEnabled !== false,
       },
     });
   } catch (error) {
-    // Handle duplicate email error
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
@@ -162,6 +150,7 @@ export const adminLogin = async (req, res, next) => {
 export const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
+    const username = await ensureUsername(user);
 
     res.status(200).json({
       success: true,
@@ -170,6 +159,9 @@ export const getMe = async (req, res, next) => {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
+        username,
+        bioHeadline: user.bioHeadline || '',
+        bioEnabled: user.bioEnabled !== false,
       },
     });
   } catch (error) {
